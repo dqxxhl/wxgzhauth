@@ -43,6 +43,15 @@ router.get("/api/count", async (ctx) => {
   };
 });
 
+router.get('/getAccessToken', async ctx => {
+  const appid = 'wxee7cc95fe91f313d';
+  const secret= '7434c4a94831fb63edd240ec4561306f';
+  const url = `https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=${appid}&secret=${secret}`;
+  const res = await axios.get(url);
+  console.log('res:', res.data);
+  ctx.body = res.data;
+})
+
 // 小程序调用，获取微信 Open ID
 router.get("/api/wx_openid", async (ctx) => {
   if (ctx.request.headers["x-wx-source"]) {

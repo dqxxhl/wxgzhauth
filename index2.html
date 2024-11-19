@@ -1,11 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
+<script src="https://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
+
 <body>
     <h2>你好,测试微信接口</h2>
+    <div class="signature"></div>
 </body>
+<script src="https://code.jquery.com/jquery-1.12.4.min.js"
+    integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+<script>
+    var apiList = ['checkJsApi', 'onMenuShareTimeline', 'onMenuShareAppMessage', 'onMenuShareQQ', 'onMenuShareWeibo', 'hideMenuItems', 'showMenuItems', 'hideAllNonBaseMenuItem', 'showAllNonBaseMenuItem', 'translateVoice', 'startRecord', 'stopRecord', 'onRecordEnd', 'playVoice', 'pauseVoice', 'stopVoice', 'uploadVoice', 'downloadVoice', 'chooseImage', 'previewImage', 'uploadImage', 'downloadImage', 'getNetworkType', 'openLocation', 'getLocation', 'hideOptionMenu', 'showOptionMenu', 'closeWindow', 'scanQRCode', 'chooseWXPay', 'openProductSpecificView', 'addCard', 'chooseCard', 'openCard']
+
+    init();
+    function init () {
+        let url = `/api/getsignature?url=` + encodeURIComponent(location.href)
+        console.log(url);
+        $.ajax(url, {
+            method: "get",
+        }).done(function (res) {
+            console.log(res);
+            $(".signature").html(JSON.stringify(res));
+            let data = res;
+            window.wx.config({
+                debug: false,
+                appId: data.appId,
+                timestamp: data.timestamp,
+                nonceStr: data.nonceStr,
+                signature: data.signature,
+                jsApiList: apiList,
+            })
+        });
+
+        window.wx.ready(function () {
+            alert(location.href)
+        })
+        window.wx.error(function (res) {
+            alert(JSON.stringify(res))
+        })
+    }
+</script>
+
 </html>

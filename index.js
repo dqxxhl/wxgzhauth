@@ -104,7 +104,7 @@ router.get("/api/wx", async (ctx) => {
   // }else {
   //   ctx.body = true
   // }
-  ctx.body = true
+  ctx.body = 'success'
 });
 
 // 小程序调用，获取微信 Open ID

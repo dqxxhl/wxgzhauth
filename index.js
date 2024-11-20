@@ -16,8 +16,8 @@ router.get("/", async (ctx) => {
 });
 
 //公众号信息
-const appid = 'wxee7cc95fe91f313d';
-const secret= '7434c4a94831fb63edd240ec4561306f';
+const appid = 'wxccd60360b70c2d6e';
+const secret= '7f67eaa5e7eb55f62cfdd3264e97bce7';
 
 //缓存access_token
 let access_token_cache

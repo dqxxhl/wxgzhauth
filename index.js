@@ -5,7 +5,6 @@ const bodyParser = require("koa-bodyparser");
 const fs = require("fs");
 const path = require("path");
 const axios = require('axios');
-// const { init: initDB, Counter } = require("./db");
 
 const router = new Router();
 
@@ -16,59 +15,69 @@ router.get("/", async (ctx) => {
   ctx.body = homePage;
 });
 
-// 更新计数
-// router.post("/api/count", async (ctx) => {
-//   const { request } = ctx;
-//   const { action } = request.body;
-//   if (action === "inc") {
-//     await Counter.create();
-//   } else if (action === "clear") {
-//     await Counter.destroy({
-//       truncate: true,
-//     });
-//   }
-
-//   ctx.body = {
-//     code: 0,
-//     data: await Counter.count(),
-//   };
-// });
-
-// 获取计数
-// router.get("/api/count", async (ctx) => {
-//   const result = await Counter.count();
-
-//   ctx.body = {
-//     code: 0,
-//     data: result,
-//   };
-// });
-
+//公众号信息
 const appid = 'wxee7cc95fe91f313d';
 const secret= '7434c4a94831fb63edd240ec4561306f';
 
-// 获取access_token
-router.get('/api/getAccessToken', async ctx => {
+//缓存access_token
+let access_token_cache
+//缓存ticket
+let ticket_cache
+
+
+let access_token = '';
+let ticket = ""
+
+
+async function getAccessToken() {
   const url = `https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=${appid}&secret=${secret}`;
   const res = await axios.get(url);
   console.log('res:', res.data);
-  ctx.body = res.data;
-})
+  res.data.expires_in = Date.now() + res.data.expires_in * 1000
+  access_token_cache = res.data
+  return res
+}
 
-let access_token = '86_I8vwa5h1yQvXOZ3wmP5IBrCasecZUJEAqdMI8XZi3EatejkuZdnZWLECez4hVaTPgdRsQkBegisBErbwWWFSL_LPMZStMYlx50y44wyVvS4Goqe24ad0CsrU36ENWIiAJAQZL';
-//获取ticket
-router.get('/api/getticket', async ctx => {
+async function getTicket() {
+  if (access_token_cache && access_token_cache.expires_in > Date.now()) {
+    access_token = access_token_cache.access_token
+  } else {
+    let res = await getAccessToken()
+    access_token = res.data.access_token
+  }
   const url = `https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token=${access_token}&type=jsapi`;
   const res = await axios.get(url);
   console.log('res:', res.data);
+  res.data.expires_in = Date.now() + res.data.expires_in * 1000
+  ticket_cache = res.data
+  return res
+}
+
+
+// 获取access_token
+router.get('/api/getAccessToken', async ctx => {
+  let res = await getAccessToken()
   ctx.body = res.data;
 })
 
-let ticket = "O3SMpm8bG7kJnF36aXbe8677cbpy9gdG-2GA-6UtGsJ1K1iB7MdBv1uwWlGxKo6NrFd_Gb6_aXEz5a6BREysuQ"
+
+//获取ticket
+router.get('/api/getticket', async ctx => {
+  let res = await getTicket()
+  ctx.body = res.data;
+})
+
+
 //获取signature
 router.get('/api/getsignature', async ctx => {
   console.log('ctx.request.query: ',  ctx.request.query)
   let url = ctx.request.query.url
+  if (ticket_cache && ticket_cache.expires_in > Date.now()) {
+    ticket = ticket_cache.ticket
+  }else {
+    let res = await getTicket()
+    ticket = res.data.ticket
+  }
   let nonceStr = Math.random().toString(36).substr(2, 15)
   let timestamp = parseInt(new Date().getTime() / 1000) + ''
   let str = `jsapi_ticket=${ticket}&noncestr=${nonceStr}&timestamp=${timestamp}&url=${url}`

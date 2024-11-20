@@ -91,7 +91,21 @@ router.get('/api/getsignature', async ctx => {
   ctx.body = data
 })
 
-
+// 微信Token验证
+router.get("/api/wx", async (ctx) => {
+  // const { signature, timestamp, nonce, echostr } = ctx.request.query;
+  // const token = '123456';
+  // const arr = [token, timestamp, nonce].sort();
+  // const str = arr.join("");
+  // const sha1 = require("sha1");
+  // const sha1Str = sha1(str);
+  // if (sha1Str === signature) {
+  //   ctx.body = true;
+  // }else {
+  //   ctx.body = true
+  // }
+  ctx.body = true
+});
 
 // 小程序调用，获取微信 Open ID
 // router.get("/api/wx_openid", async (ctx) => {
